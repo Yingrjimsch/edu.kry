@@ -1,0 +1,67 @@
+body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#calculator {
+    background-color: #333333;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+#inputFields {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+input {
+    width: 80px; /* Adjust the width as needed */
+    padding: 8px;
+    margin: 5px;
+    box-sizing: border-box;
+    border: 1px solid #555555;
+    background-color: #444444;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+select, button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    border: none;
+    background-color: #555555;
+    color: #ffffff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button {
+    background-color: #4CAF50;
+}
+
+#result {
+    white-space: pre-wrap;
+    margin-top: 20px;
+    font-size: 18px;
+    max-height: 200px; /* Adjust the maximum height as needed */
+    overflow-y: auto;
+}
+
+pre {
+    visibility: hidden;
+}
+
+py-config {
+    visibility: hidden;
+}

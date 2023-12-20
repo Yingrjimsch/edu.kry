@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kryptologie</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body onload="changeCalculator()">
+    <py-config>
+        packages = ["sympy"]
+    </py-config>
+    <py-script src="calculator.py"> </py-script>
+        
+    <div id="calculator">
+        <h2>Kryptologie</h2>
+
+        <label for="calcType">Choose Lab:</label>
+        <select id="calcType" onchange="changeCalculator()">
+            <option value="ggT">ggT (Lab 1)</option>
+            <option value="rsabasic">Basic RSA (Lab 1)</option>
+            <option value="scg">Subgroup of Cyclic Group (Lab 1)</option>
+            <option value="modPow">ModPow (Lab 2)</option>
+            <option value="cma">Common Modulus Attack (Lab 3)</option>
+            <option value="lea">Low Exponent Attack (Lab 3)</option>
+            <option value="dbe">DB Encryption (Lab 4)</option>
+            <option value="tableofprimes">Pseudo Primes (Lab 5)</option>
+            <option value="isprobableprime">Lab 6 (isProbablePrime)</option>
+            <option value="fermattest">Lab 6 (fermat test)</option>
+        </select>
+
+        <div id="inputFields">
+            <!-- Input fields will be dynamically added here -->
+        </div>
+
+        <button id="calc" py-click="execute()">Calculate</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function changeCalculator() {
+            var calcType = document.getElementById("calcType").value;
+            var inputFieldsDiv = document.getElementById("inputFields");
+            
+            // Remove existing input fields
+            while (inputFieldsDiv.firstChild) {
+                inputFieldsDiv.removeChild(inputFieldsDiv.firstChild);
+            }
+
+            switch(calcType) {
+                case "ggT":
+                    createInputField("Number One");
+                    createInputField("Number Two");
+                    break;
+                case "rsabasic":
+                    createInputField("n");
+                    createInputField("m");
+                    createInputField("c");
+                    createInputField("e");
+                    createInputField("d");
+                    break;
+                case "scg":
+                    createInputField("Base");
+                    createInputField("Group");
+                    break;
+                case "scg":
+                    createInputField("Base");
+                    createInputField("Exponent");
+                    createInputField("Modulus");
+                    break;
+                case "modPow":
+                    createInputField("Base");
+                    createInputField("Exponent");
+                    createInputField("Modulus");
+                    break;
+                case "cma":
+                    createInputField("Modulus");
+                    createInputField("public Key 1");
+                    createInputField("private Key 1");
+                    createInputField("public Key 2");
+                    break;
+                case "lea":
+                    createInputField("RSA Modules");
+                    createInputField("Chiffrates");
+                    break;
+                case "dbe":
+                    createInputField("Unencrypted Records");
+                    break;
+            }
+            // Add new input fields based on selected calculator
+            if (calcType === "calc1" || calcType === "calc2") {
+                createInputField("Number 1");
+                createInputField("Number 2");
+            } else if (calcType === "calc3" || calcType === "calc4") {
+                createInputField("Number 1");
+                createInputField("Number 2");
+                createInputField("Number 3");
+            }
+        }
+
+        function createInputField(placeholderText) {
+            var input = document.createElement("input");
+            input.setAttribute("id", placeholderText.toLowerCase().replaceAll(" ", "_"));
+            console.log(placeholderText.toLowerCase().replaceAll(" ", "_"))
+            input.setAttribute("type", "text");
+            input.setAttribute("placeholder", placeholderText);
+            input.setAttribute("class", "input-field");
+
+            var inputFieldsDiv = document.getElementById("inputFields");
+            inputFieldsDiv.appendChild(input);
+        }
+
+        function calculate() {
+            // Implement your calculation logic here
+            var resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "Result: Calculation performed!";
+        }
+    </script>
+
+</body>
+</html>
