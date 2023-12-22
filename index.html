@@ -31,6 +31,8 @@
             <option value="tableofprimes">Millner Rabinot Test (Lab 5)</option> -->
             <option value="top">Table of Primes (Lab 6)</option>
             <option value="ipp">Is Probable Prime (Lab 6)</option>
+            <option value="fe">Find Exponent (Lab 7)</option>
+            <option value="ff">Find Factor (Lab 7)</option>
             <option value="psp">Probable Safe Prime (Lab 8)</option>
             <option value="eg">El Gamal (Lab 8)</option>
             <option value="sf">SQRT Floor (Lab 10)</option>
@@ -77,61 +79,79 @@
                 case "scg":
                     createInputField("Base");
                     createInputField("Group");
-                    descriptionDiv.innerHTML = "berechnen einer subgruppe zur Basis base der Gruppe group";
-                    break;
-                case "scg":
-                    createInputField("Base");
-                    createInputField("Exponent");
-                    createInputField("Modulus");
+                    descriptionDiv.innerHTML = "Berechnen einer subgruppe zur Basis base der Gruppe group";
                     break;
                 case "modPow":
                     createInputField("Base");
                     createInputField("Exponent");
                     createInputField("Modulus");
+                    descriptionDiv.innerHTML = "Berechne b^e mod m = x";
                     break;
                 case "cma":
                     createInputField("Modulus");
                     createInputField("public Key 1");
                     createInputField("private Key 1");
                     createInputField("public Key 2");
+                    descriptionDiv.innerHTML = "Führe Common Modulus Attack aus";
                     break;
                 case "lea":
                     createInputField("RSA Modules");
                     createInputField("Chiffrates");
+                    descriptionDiv.innerHTML = "Führe Low Exponent Attack aus";
                     break;
                 case "dbe":
                     createInputField("Unencrypted Records");
+                    descriptionDiv.innerHTML = "DB Ver-Entschlüsselung die Records sollten Komma seperierte Zahlen sein e.g. 32,45,2";
                     break;
                 case "top":
                     createInputField("Max Value");
+                    descriptionDiv.innerHTML = "Finde alle Primzahlen bis Max Value";
                     break;
                 case "ipp":
                     createInputField("Number");
                     createInputField("Number of fermat tests");
                     createInputField("table of primes");
+                    descriptionDiv.innerHTML = "Führe Fermat Test aus um zu prüfen ob Number eine Primzahl ist. Table of Primes sollte den max value enthalten";
+                    break;
+                case "fe":
+                    createInputField("base");
+                    createInputField("r");
+                    descriptionDiv.innerHTML = "Finde den Exponenten von base^x <= r";
+                    break;
+                case "ff":
+                    createInputField("n");
+                    createInputField("B");
+                    descriptionDiv.innerHTML = "Finde den Faktor mithilfe p-1 Methode n ist die zu faktorierende Zahl und B ist die Faktorobergrenze";
                     break;
                 case "psp":
                     createInputField("bit length");
                     createInputField("certainity");
                     createInputField("table of primes");
+                    descriptionDiv.innerHTML = "Finde eine Primzahl in einer Bitlänge. Table of Primes sollte den max value enthalten";
                     break;
                 case "eg":
                     createInputField("bit length");
                     createInputField("plain_text");
+                    descriptionDiv.innerHTML = "Führe El Gamal aus mit Zahl als Plain Text";
                     break;
                 case "sf":
                     createInputField("Number");
+                    descriptionDiv.innerHTML = "Finde die abgerundete Wurzel einer Zahl";
                     break;
                 case "pr":
                     createInputField("Number");
-                    break;
+                    createInputField("x");
+                    createInputField("a");
+                    descriptionDiv.innerHTML = "Finde einen Faktor einer zahl mit Pollard Rho wobei x und a optionale startwerte sind.";
                     break;
                 case "qnr":
                     createInputField("Number");
+                    descriptionDiv.innerHTML = "Finde ein Quadratisches Nonresidual einer Zahl";
                     break;
                 case "ms":
                     createInputField("Number");
                     createInputField("Modulus");
+                    descriptionDiv.innerHTML = "Finde die Wurzel einer Zahl modulus einer anderen Zahl";
                     break;
                 case "ea":
                     createInputField("P_x");
@@ -141,16 +161,8 @@
                     createInputField("p");
                     createInputField("a");
                     createInputField("b");
+                    descriptionDiv.innerHTML = "Führe eine Elliptische Addition von zwei Punkten (P_x, P_y), (Q_x, Q_y) auf der Elliptischen Kurve y^2 = x^3 + ax^2 + b mod p";
                     break;
-            }
-            // Add new input fields based on selected calculator
-            if (calcType === "calc1" || calcType === "calc2") {
-                createInputField("Number 1");
-                createInputField("Number 2");
-            } else if (calcType === "calc3" || calcType === "calc4") {
-                createInputField("Number 1");
-                createInputField("Number 2");
-                createInputField("Number 3");
             }
         }
 

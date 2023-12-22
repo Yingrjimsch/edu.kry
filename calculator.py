@@ -1,5 +1,5 @@
 from js import console
-from math import gcd, prod, ceil, log2, sqrt
+from math import gcd, prod, ceil, log2, sqrt, log, floor
 from random import choice, seed, randint, SystemRandom
 import functools
 from sympy import randprime
@@ -32,6 +32,10 @@ def execute():
     elif calcType == "ipp":
         res = my_is_probable_prime(int(Element("number").value), int(Element("number_of_fermat_tests").value), 
                                    create_table_of_primes(int(Element("table_of_primes").value))[0])[1]
+    elif calcType == "fe":
+        res = find_exp(int(Element("base").value), int(Element("r").value))[1]
+    elif calcType == "ff":
+        res = find_factor(int(Element("n").value), int(Element("b").value))[1]
     elif calcType == "psp":
         res = my_probable_safe_prime(int(Element("bit_length").value), int(Element("certainity").value), 
                                    create_table_of_primes(int(Element("table_of_primes").value))[0])[1]
@@ -40,7 +44,9 @@ def execute():
     elif calcType == "sf":
         res = my_sqrt_floor(int(Element("number").value))[1]
     elif calcType == "pr":
-        res = my_pollard_rho(int(Element("number").value))[1]
+        x = 1 if Element("x").value == "" else int(Element("x").value)
+        a = 1 if Element("a").value == "" else int(Element("a").value)
+        res = my_pollard_rho(int(Element("number").value), x, a)[1]
     elif calcType == "qnr":
         res = find_quadratic_nonresidue(int(Element("number").value))[1]
     elif calcType == "ms":
@@ -277,6 +283,35 @@ def my_is_probable_prime(number, t, table_of_primes=[]):
     solution += f"\nNach {t} versuchen ist {number} eine Primzahl"
     return True, solution
 
+def find_exp(base, r):
+    solution = "--- Find exponent ---"
+    solution += f"\nz^x <= r: {base}^x <= {r}"
+    res = int(floor(log(r) / log(base)))
+    solution += f"\nfloor(log({r}) / log({base})) = {res}"
+    return res, solution
+
+def find_factor(n, B):
+    solution = "--- Find Factor ---"
+    a = 2  # Anfangswert von a
+
+    # Schritt 1: Berechne a^(B!) mod n für B = 2, 3, ..., B
+    for j in range(2, B + 1):
+        # Berechne die Potenz a^j mod n
+        solution += f"\n\n{a}^{j} = {pow(a, j, n)} (mod {n})"
+        a = pow(a, j, n)
+
+        # Berechne den ggT(a-1, n)
+        gcd_result = gcd(a - 1, n)
+        solution += f"\nggT({a} - 1, {n})"
+        solution += f"\nCheck if 1 < {gcd_result} < {n} => {1 < gcd_result < n}"
+        # Wenn 1 < ggT(a-1, n) < n, dann haben wir einen nicht-trivialen Faktor gefunden
+        if 1 < gcd_result < n:
+            solution += f"\nFactor found: {gcd_result}"
+            return gcd_result, solution
+    solution += f"\nNo Factor found"
+    # Wenn kein Faktor gefunden wurde, gib n zurück, um anzuzeigen, dass die Methode versagt hat
+    return n, solution
+
 def my_probable_safe_prime(bit_length, certainty, table_of_primes):
     solution = "-- Wahrscheinliche Sichere Primzahl ---"
     if bit_length < 2:
@@ -392,19 +427,19 @@ def my_sqrt_floor(num):
     solution += f"\nfloor(sqrt({num})) = {x}"
     return x, solution
 
-def my_pollard_rho(num):
+def my_pollard_rho(num, x=1, a=1):
     # Check if smaller or equal one or prime
     solution = "--- Pollard Rho ---"
     is_probable_prime = my_is_probable_prime(num, 10)[0]
     if num <= 1 or is_probable_prime:
         solution += f"\nThere is no factor because {num} is prime"
-        return 1, solution
+        return 1
 
     # Check if it's an even number
     if num % 2 == 0:
         solution += f"\nFactor is 2, {num} is even."
-        return 2, solution
-    x = y = a = 1
+        return 2
+    y = x
     d = 0
 
     while d <= 1 or d >= num:
@@ -413,7 +448,8 @@ def my_pollard_rho(num):
         y = ((y**2 + a)**2 + a) % num
         solution += f"\ny = (({y}^2 + {a})^2 + {a}) = {y} (mod {num})"
         d = gcd(abs(x - y), num)
-        solution += f"\nggT(|{x} - {y}|, {num}) = {d}"
+        solution += f"\n{d} = ggT(|{x} - {y}|, {num}) = {d}"
+    solution += f"\n\nFactor 1: {d}, Factor 2: {num // d}"
     return d, solution
 
 def my_mod_sqrt(n, p):
