@@ -73,6 +73,8 @@ def execute():
         G3 = [int(i) for i in Element("g3").value.split(',')]
         res = pollard_rho_logarithm(int(Element("p").value), int(Element("g").value), int(Element("a").value), 
                                     G1, G2, G3)
+    elif calcType == "bsgs":
+        res = baby_step_giant_step(int(Element("g").value), int(Element("a").value), int(Element("p").value))
     Element('result').write(res)
 
 def my_gcd(number_one, number_two):
@@ -629,22 +631,22 @@ def euler(n):
 
 def mod_linear_equation(a, b, p):
     solution = f"--- Modulare Lineare Gleichung ---"
-    solution += f"\n{a}x = {b} (mod {p - 1})"
+    solution += f"\n{a}x = {b} (mod {p})"
     d = gcd(a, b)
     if d == 1:
-        res = (pow(a, -1, p - 1) * b) % (p - 1)
-        solution += f"\nx = {a}^(-1) * {b} (mod {p - 1})"
+        res = (pow(a, -1, p) * b) % (p)
+        solution += f"\nx = {a}^(-1) * {b} (mod {p})"
     elif d > 1:
         solution += f"\nDivision durch ggt({a}, {b}) = {d} gibt:"
         a = int(a / d)
         b = int(b / d)
-        n = int((p - 1) / d)
+        n = int((p) / d)
         z = pow(a, -1, n)
         solution += f"\nz = {a}^-1 = {z} (mod {n})"
         x = []
         for k in range(d):
-            xi = (z * b + k * n) % (p - 1)
-            solution += f"\nx{k} = {z} * {b} + {k * n} (mod {p - 1}) = {xi}"
+            xi = (z * b + k * n) % (p)
+            solution += f"\nx{k} = {z} * {b} + {k * n} (mod {p}) = {xi}"
             x.append(xi)
     return x, solution
 
@@ -686,10 +688,37 @@ def pollard_rho_logarithm(p, g, a, G1, G2, G3):
     solution += f"\n(einsetzen: {g}^x = {a})"
     solution += f"\n{g}^{r1}x = {g}^{s2} (mod {p - 1})"
 
-    x, mlg_solution = mod_linear_equation(r1, s2, p)
+    x, mlg_solution = mod_linear_equation(r1, s2, p - 1)
     solution += f"\n\n{mlg_solution}"
     for xi in x:
         if pow(g, xi, p) == a:
             solution += f"\n\nTest:{g}^{xi} = {pow(g, xi, p)} (mod {p})"
             solution += f"\nLösung ist {xi}"
             return solution
+        
+def baby_step_giant_step(g, a, p):
+    solution = "--- Baby step Giant step ---"
+    m = ceil(sqrt(p))
+    solution += f"\ng = {g}, a = {a}, n = {p}, m = ceil(sqrt({p})) = {m}"
+    solution += f"\nBaby Step:"
+    solution += f"\nBerechnung (j, g^j) (mod n) fuer j = 0,1,2...{m - 1}"
+    baby_step = []
+    for j in range(m):
+        g_j = pow(g, j, p)
+        solution += f"\n({j}, {g_j})"
+        baby_step.append([j, g_j])
+    h = pow(g, -m, p)
+    solution += f"\n\nh = {g}^(-{m}) = {h} (mod {p})"
+
+    solution += f"\n\nGiant Step:"
+    solution += f"\nBerechnung (i, ah^i) (mod n) fuer i = 0,1,2,...{ceil(p/m)}"
+    for i in range(ceil(p/m)):
+        ah_i = a * pow(h, i, p) % p
+        solution += f"\n({i}, {ah_i})"
+        if ah_i in np.array(baby_step)[:, 1]:
+            j = np.where(np.array(baby_step)[:, 1] == ah_i)[0][0]
+            x = i * m + j
+            solution += f"\nKollision gefunden! Übereinstimmung mit ({j}, {ah_i})"
+            solution += f"\n\nLösung x = {i} * {m} + {j} = {x} (mod {p})"
+            break
+    return solution

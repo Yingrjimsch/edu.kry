@@ -39,6 +39,7 @@
             <option value="pr">Pollard Rho (Lab 10)</option>
             <option value="mle">Modulare Lineare Gleichung (Lab 11)</option>
             <option value="prl">Pollard Rho für Logarithmus (Lab 11)</option>
+            <option value="bsgs">Baby Step Giant Step (Lab 11)</option>
             <option value="qnr">Quardatisches Nonresidual (Lab 12)</option>
             <option value="ms">Mod Sqrt Tonelli(Lab 12)</option>
             <option value="ea">Ellipt Add (Lab 12)</option>
@@ -196,7 +197,13 @@
                     createInputField("G1");
                     createInputField("G2");
                     createInputField("G3");
-                    descriptionDiv.innerHTML = "Finde x aus der rechnung g^x = a in Gruppe p oder log_g(a)";
+                    descriptionDiv.innerHTML = "Finde x aus der rechnung g^x = a in Gruppe p oder log_g(a) mit pllard Rho";
+                    break;
+                case "bsgs":
+                    createInputField("g");
+                    createInputField("a");
+                    createInputField("p");
+                    descriptionDiv.innerHTML = "Finde x aus der rechnung g^x = a in Gruppe p oder log_g(a) mit Baby Step Giant Step";
                     break;
             }
         }
