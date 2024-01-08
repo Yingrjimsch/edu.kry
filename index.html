@@ -9,7 +9,7 @@
 </head>
 <body onload="changeCalculator()">
     <py-config>
-        packages = ["sympy"]
+        packages = ["sympy", "numpy"]
     </py-config>
     <py-script src="calculator.py"> </py-script>
         
@@ -25,20 +25,22 @@
             <option value="cma">Common Modulus Attack (Lab 3)</option>
             <option value="lea">Low Exponent Attack (Lab 3)</option>
             <option value="dbe">DB Encryption (Lab 4)</option>
-            <!-- <option value="tableofprimes">Finde Fermat Lügner (Lab 5)</option>
-            <option value="tableofprimes">Ist Fermat Lügner (Lab 5)</option>
-            <option value="tableofprimes">Carmichael Test (Lab 5)</option>
-            <option value="tableofprimes">Millner Rabinot Test (Lab 5)</option> -->
+            <option value="ffl">Finde Fermat Lügner (Lab 5)</option>
+            <option value="ifl">Ist Fermat Lügner (Lab 5)</option>
+            <option value="cmt">Carmichael Test (Lab 5)</option>
             <option value="top">Table of Primes (Lab 6)</option>
             <option value="ipp">Is Probable Prime (Lab 6)</option>
             <option value="fe">Find Exponent (Lab 7)</option>
             <option value="ff">Find Factor (Lab 7)</option>
             <option value="psp">Probable Safe Prime (Lab 8)</option>
             <option value="eg">El Gamal (Lab 8)</option>
+            <option value="euler">Quadratische Rest mit Euler (Lab 9)</option>
             <option value="sf">SQRT Floor (Lab 10)</option>
             <option value="pr">Pollard Rho (Lab 10)</option>
+            <option value="mle">Modulare Lineare Gleichung (Lab 11)</option>
+            <option value="prl">Pollard Rho für Logarithmus (Lab 11)</option>
             <option value="qnr">Quardatisches Nonresidual (Lab 12)</option>
-            <option value="ms">Mod Sqrt (Lab 12)</option>
+            <option value="ms">Mod Sqrt Tonelli(Lab 12)</option>
             <option value="ea">Ellipt Add (Lab 12)</option>
         </select>
         <div id="description"></div>
@@ -162,6 +164,39 @@
                     createInputField("a");
                     createInputField("b");
                     descriptionDiv.innerHTML = "Führe eine Elliptische Addition von zwei Punkten (P_x, P_y), (Q_x, Q_y) auf der Elliptischen Kurve y^2 = x^3 + ax^2 + b mod p";
+                    break;
+                case "ffl":
+                    createInputField("n");
+                    createInputField("accuracy")
+                    descriptionDiv.innerHTML = "Finde Fermat Lügner für eine Zahl"
+                    break;
+                case "ifl":
+                    createInputField("n");
+                    createInputField("Numbers to test")
+                    descriptionDiv.innerHTML = "Teste alle Zahlen einer Menge ob sie ein Fermat Lünger für n sind."
+                    break;
+                case "cmt":
+                    createInputField("n");
+                    descriptionDiv.innerHTML = "Carmichael und Miller Rabiot test."
+                    break;
+                case "euler":
+                    createInputField("n");
+                    descriptionDiv.innerHTML = "Finde den Quadratischen Rest mit Euler."
+                    break;
+                case "mle":
+                    createInputField("a");
+                    createInputField("b");
+                    createInputField("p");
+                    descriptionDiv.innerHTML = "Berechne lineare Gleichung Modulo p (eg. ax = b (mod p))";
+                    break;
+                case "prl":
+                    createInputField("p");
+                    createInputField("g");
+                    createInputField("a");
+                    createInputField("G1");
+                    createInputField("G2");
+                    createInputField("G3");
+                    descriptionDiv.innerHTML = "Finde x aus der rechnung g^x = a in Gruppe p oder log_g(a)";
                     break;
             }
         }
