@@ -3,6 +3,7 @@ from math import gcd, prod, ceil, log2, sqrt, log, floor
 from random import choice, seed, randint, SystemRandom
 import functools
 from sympy import randprime
+import numpy as np
 
 def execute():
     res = ""
@@ -54,6 +55,24 @@ def execute():
     elif calcType == "ea":
         res = ellipt_add(int(Element("p_x").value), int(Element("p_y").value), int(Element("q_x").value), 
                          int(Element("q_y").value), int(Element("p").value), int(Element("a").value), int(Element("b").value))[1]
+    elif calcType == "ffl":
+        accuracy = 0.001 if Element("accuracy").value == "" else float(Element("accuracy").value)
+        res = find_fermat_liers(int(Element("n").value), accuracy)
+    elif calcType == "cmt":
+        res = carmichael_test(int(Element("n").value))
+    elif calcType == "ifl":
+        numbers_to_test = [int(i) for i in Element("numbers_to_test").value.split(',')]
+        res = is_fermat_lier(int(Element("n").value), numbers_to_test)
+    elif calcType == "euler":
+        res = euler(int(Element("n").value))
+    elif calcType == "mle":
+        res = mod_linear_equation(int(Element("a").value), int(Element("b").value), int(Element("p").value))[1]
+    elif calcType == "prl":
+        G1 = [int(i) for i in Element("g1").value.split(',')]
+        G2 = [int(i) for i in Element("g2").value.split(',')]
+        G3 = [int(i) for i in Element("g3").value.split(',')]
+        res = pollard_rho_logarithm(int(Element("p").value), int(Element("g").value), int(Element("a").value), 
+                                    G1, G2, G3)
     Element('result').write(res)
 
 def my_gcd(number_one, number_two):
@@ -483,7 +502,8 @@ def my_mod_sqrt(n, p):
                 solution += f"\nUpdate exponent 2 = {exponent_two}"
 
         res = pow(n, (exponent_one + 1) // 2, p) * pow(h, exponent_two // 2, p) % p
-        solution += f"\n{n}^(({exponent_one} + 1) / 2) * {h}^({exponent_two} / 2) = {res} (mod {p})"
+        solution += f"\n{n}^(({exponent_one} + 1) / 2) * {h}^({exponent_two} / 2) = +- {res} (mod {p})"
+        solution += f"\nx1 = {res}, x2 = {(-res) % p}"
         return res, solution
 
 def find_quadratic_nonresidue(p):
@@ -534,3 +554,142 @@ def ellipt_add(P_x, P_y, Q_x, Q_y, p, a, b):
         return [p, P_y], solution
     else:
         raise ValueError("Point does not lie on the curve!")
+    
+def find_fermat_liers(n, accuracy=0.01):
+    # n: die zahl von welchen man die Fermatlügner berechnet haben werden will.
+    solution = f"--- Fermat Lügner von {n} ---\na^(n-1) = 1 (mod n) und ggT(a, n) = 1"
+    fermat_liers = []
+    for a in range(1, n):
+        candidate = pow(a, n - 1, n)
+        solution += f"\n\na^(n-1) = {a}^{n - 1} = {candidate} (mod {n})"
+        if candidate == 1:
+            candidate_gcd = gcd(candidate, n)
+            solution += f"\nggT(a, n) = ggT({a}, {n}) = {candidate_gcd} (mod {n})"
+            if candidate_gcd == 1:
+                solution += f"\nFermat Lügner gefunden!"
+                fermat_liers.append(a)
+    solution += f"\n\nEs gibt {len(fermat_liers)} Fermat Lügner FL({n}) = {','.join(map(str, fermat_liers))}"
+    solution += f"\nIn FL({n}) gibt es {len(fermat_liers)}/{n - 1} = {(len(fermat_liers) / (n - 1)) * 100}% Fermat Lügner."
+    solution += f"\nUm {(1-accuracy) * 100}% sicher zu sein müssen ln({accuracy})/ln({len(fermat_liers) / (n - 1)}) = {ceil(log2(accuracy) / log2(len(fermat_liers) / (n - 1)))} Ziehungen benötigt."
+    return solution
+
+def carmichael_test(n):
+    solution = f"--- Carmichael Test ---"
+    solution += f"\nZahl muss quadratfrei sein"
+    solution += f"\nKriterium (p-1)|(n-1) für Primfaktoren p muss erfüllt sein."
+    factors = factorize(n)
+    solution += f"\nFaktoren von {n} sind {factors}"
+    if len(factors) != len(set(factors)):
+        solution += f"\n{n} ist nicht quadratfrei also keine Carmichael Zahl"
+        return solution
+    solution += f"\n{n} ist quadratfrei, prüfe Primfaktoren kriterium:"
+    for factor in factors:
+        is_divisor = (n-1) % (factor-1) == 0
+        if is_divisor:
+            solution += f"\n\n{factor-1} ist teiler von {n-1}"
+        else:
+            solution += f"\n{factor-1} ist kein teiler von {n-1}, Zahl ist also keine Carmichael Zahl."
+            return solution
+    solution += "\nist carmichael Zahl!"
+    return solution
+
+def is_fermat_lier(n, S):
+    solution = f"--- Prüfe für jede Zahl aus {S} ob Fermat Lügner ---"
+    for s in S:
+        res = pow(s, n-1, n)
+        if res == 1:
+            solution += f"\n\n{s}^{n-1} = {res} (mod {n}) => ist FL"
+            factors = factorize(n-1)
+            r = factors.count(2)
+            u = int((n-1) / 2**r)
+            solution += f"\n{n-1} = 2^{r} * {u}"
+            res_miller_rabiot = pow(s, u, n)
+            if res_miller_rabiot == 1 or res_miller_rabiot == (n-1):
+                solution += f"\n{s}^{u} = {res_miller_rabiot} (mod {n}) => ist Starker Lügner"
+            else:
+                solution += f"\n{s}^{u} = {res_miller_rabiot} (mod {n}) => ist kein Starker Lügner"
+        else:
+            solution += f"\n\n{s}^{n-1} = {res} (mod {n}) => ist kein FL und kein SL"
+    return solution
+
+def euler(n):
+    solution = f"--- Finde Quadratische Reste modulo {n} mit Euler ---"
+    quadratic_residual = []
+    exponent = int((n - 1) / 2)
+    solution += f"Exponent ({n} - 1) / 2 = {exponent}"
+    for a in range(1, n):
+        res = pow(a, exponent, n)
+        if res == 1:
+            solution += f"\n\n{a}^{exponent} = {res} (mod {n}) => ist ein QR"
+            quadratic_residual.append(a)
+        else:
+            solution += f"\n\n{a}^{exponent} = {res} (mod {n}) => ist ein QNR"
+    solution += f"\n\nQuadratische Reste Modulo {n}: {(',').join(map(str, quadratic_residual))}"
+    return solution
+
+def mod_linear_equation(a, b, p):
+    solution = f"--- Modulare Lineare Gleichung ---"
+    solution += f"\n{a}x = {b} (mod {p - 1})"
+    d = gcd(a, b)
+    if d == 1:
+        res = (pow(a, -1, p - 1) * b) % (p - 1)
+        solution += f"\nx = {a}^(-1) * {b} (mod {p - 1})"
+    elif d > 1:
+        solution += f"\nDivision durch ggt({a}, {b}) = {d} gibt:"
+        a = int(a / d)
+        b = int(b / d)
+        n = int((p - 1) / d)
+        z = pow(a, -1, n)
+        solution += f"\nz = {a}^-1 = {z} (mod {n})"
+        x = []
+        for k in range(d):
+            xi = (z * b + k * n) % (p - 1)
+            solution += f"\nx{k} = {z} * {b} + {k * n} (mod {p - 1}) = {xi}"
+            x.append(xi)
+    return x, solution
+
+def pollard_rho_logarithm(p, g, a, G1, G2, G3):
+    solution = "--- Pollard Rho für Logarithmus ---"
+    r = 0
+    s = 0
+    xi = 1
+    store = np.array([[xi, r, s]])
+    not_terminating = True
+    while not_terminating:
+        if xi in G1:
+            solution += f"\nx = {xi}, r = {r}, s = {s}, G = G1"
+            solution
+            xi = (xi * a) % p
+            r += 1
+        elif xi in G2:
+            solution += f"\nx = {xi}, r = {r}, s = {s}, G = G2"
+            xi = pow(xi, 2, p)
+            r *= 2
+            s *= 2
+        elif xi in G3:
+            solution += f"\nx = {xi}, r = {r}, s = {s}, G = G3"
+            xi = (xi * g) % p
+            s += 1
+        store = np.append(store, np.array([[xi, r, s]]), axis=0)
+        not_terminating = len(store[:, 0]) == len(set(store[:, 0]))
+    solution += f"\nx = {xi}, r = {r}, s = {s}"
+
+    indices = np.where(store[:, 0] == store[:, 0][len(store) - 1])
+    r1 = store[indices[0][0], 1]
+    s1 = store[indices[0][0], 2]
+    r2 = store[indices[0][1], 1]
+    s2 = store[indices[0][1], 2]
+    solution += f"\n\n{a}^{r1} * {g}^{s1} = {a}^{r2} * {g}^{s2} (mod {p})"
+    r1 -= r2
+    s2 -= s1
+    solution += f"\n{a}^{r1} = {g}^{s1} (mod {p})"
+    solution += f"\n(einsetzen: {g}^x = {a})"
+    solution += f"\n{g}^{r1}x = {g}^{s2} (mod {p - 1})"
+
+    x, mlg_solution = mod_linear_equation(r1, s2, p)
+    solution += f"\n\n{mlg_solution}"
+    for xi in x:
+        if pow(g, xi, p) == a:
+            solution += f"\n\nTest:{g}^{xi} = {pow(g, xi, p)} (mod {p})"
+            solution += f"\nLösung ist {xi}"
+            return solution
