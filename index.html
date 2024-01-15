@@ -37,12 +37,19 @@
             <option value="euler">Quadratische Rest mit Euler (Lab 9)</option>
             <option value="sf">SQRT Floor (Lab 10)</option>
             <option value="pr">Pollard Rho (Lab 10)</option>
+            <option value="poec">Punkte auf Elliptischer Kurve (Lab 11)</option>
             <option value="mle">Modulare Lineare Gleichung (Lab 11)</option>
             <option value="prl">Pollard Rho für Logarithmus (Lab 11)</option>
             <option value="bsgs">Baby Step Giant Step (Lab 11)</option>
             <option value="qnr">Quardatisches Nonresidual (Lab 12)</option>
             <option value="ms">Mod Sqrt Tonelli(Lab 12)</option>
             <option value="ea">Ellipt Add (Lab 12)</option>
+            <option value="ptm">Point to Message (Lab 13)</option>
+            <option value="mtp">Message to Point (Lab 13)</option>
+            <option value="em">Ellipt Mul (Lab 14)</option>
+            <option value="me">Message Encrypt (Lab 14)</option>
+            <option value="md">Message Decrypt (Lab 14)</option>
+            <option value="ege">El Gamal Ellipt (Lab 14)</option>
         </select>
         <div id="description"></div>
         <div id="inputFields">
@@ -184,6 +191,12 @@
                     createInputField("n");
                     descriptionDiv.innerHTML = "Finde den Quadratischen Rest mit Euler."
                     break;
+                case "poec":
+                    createInputField("a");
+                    createInputField("b");
+                    createInputField("p");
+                    descriptionDiv.innerHTML = "Berechne alle Punkte auf elliptischer Kurve y^2 = x^3 + ax + b";
+                    break;
                 case "mle":
                     createInputField("a");
                     createInputField("b");
@@ -204,6 +217,57 @@
                     createInputField("a");
                     createInputField("p");
                     descriptionDiv.innerHTML = "Finde x aus der rechnung g^x = a in Gruppe p oder log_g(a) mit Baby Step Giant Step";
+                    break;
+                case "ptm":
+                    createInputField("x");
+                    createInputField("bit");
+                    descriptionDiv.innerHTML = "Berechne Punkt auf elliptischer Kurve y^2 = x^3 + ax + b zu einer Nachricht mit bit shift bit und x ist erster Wert von P[x,y]";
+                    break;
+                case "mtp":
+                    createInputField("m");
+                    createInputField("p");
+                    createInputField("a");
+                    createInputField("b");
+                    createInputField("bit");
+                    descriptionDiv.innerHTML = "Berechne Nachricht auf elliptische Kurve y^2 = x^3 + ax + b mit bit shift bit";
+                    break;
+                case "em":
+                    createInputField("P_x");
+                    createInputField("P_y");
+                    createInputField("factor");
+                    createInputField("p");
+                    createInputField("a");
+                    createInputField("b");
+                    descriptionDiv.innerHTML = "Multipliziere auf elliptische Kurve y^2 = x^3 + ax + b Punkt P_x, P_y mit factor";
+                    break;
+                case "me":
+                    createInputField("m");
+                    createInputField("k_A");
+                    createInputField("k_B");
+                    createInputField("Point");
+                    createInputField("p");
+                    createInputField("a");
+                    createInputField("b");
+                    descriptionDiv.innerHTML = "Encrypte Message auf Elliptischer Kurve mithilfe von geheim k_A und k_B, message kann zahl oder punkt auf kurve sein. P ist Punkt auf kurve oder leer.";
+                    break;
+                case "md":
+                    createInputField("B enc");
+                    createInputField("C enc");
+                    createInputField("k_A");
+                    createInputField("p");
+                    createInputField("a");
+                    createInputField("b");
+                    descriptionDiv.innerHTML = "Decrypte Message auf Elliptischer Kurve mithilfe von geheim k_A und encryptetem B, C";
+                    break;
+                case "ege":
+                    createInputField("m");
+                    createInputField("k_A");
+                    createInputField("k_B");
+                    createInputField("Point");
+                    createInputField("p");
+                    createInputField("a");
+                    createInputField("b");
+                    descriptionDiv.innerHTML = "Wende das El Gamal verfahren für Elliptische Kurven an.";
                     break;
             }
         }
