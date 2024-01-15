@@ -51,7 +51,7 @@ def execute():
     elif calcType == "qnr":
         res = find_quadratic_nonresidue(int(Element("number").value))[1]
     elif calcType == "ms":
-        res = my_mod_sqrt(int(Element("number").value), int(Element("modulus").value))[1]
+        res = my_mod_sqrt(int(Element("number").value), int(Element("modulus").value))[2]
     elif calcType == "ea":
         res = ellipt_add(int(Element("p_x").value), int(Element("p_y").value), int(Element("q_x").value), 
                          int(Element("q_y").value), int(Element("p").value), int(Element("a").value), int(Element("b").value))[1]
@@ -75,6 +75,28 @@ def execute():
                                     G1, G2, G3)
     elif calcType == "bsgs":
         res = baby_step_giant_step(int(Element("g").value), int(Element("a").value), int(Element("p").value))
+    elif calcType == "poec":
+        res = points_on_elliptic_curve(int(Element("p").value), int(Element("a").value), int(Element("b").value))[1]
+    elif calcType == "mtp":
+        res = message_to_point(int(Element("m").value), int(Element("a").value), int(Element("b").value), int(Element("p").value), int(Element("bit").value))[1]
+    elif calcType == "ptm":
+        res = point_to_message(int(Element("x").value), int(Element("bit").value))[1]
+    elif calcType == "em":
+        res = ellipt_mul(int(Element("p_x").value), int(Element("p_y").value), int(Element("factor").value), int(Element("p").value), int(Element("a").value), int(Element("b").value))[1]
+    elif calcType == "me":
+        m = [int(i) for i in Element("m").value.split(',')]
+        m = m if len(m) > 1 else m[0]
+        P = False if Element("point").value == "" else [int(i) for i in Element("point").value.split(',')]
+        res = message_encrypt(int(Element("p").value), int(Element("a").value), int(Element("b").value), int(Element("k_a").value), int(Element("k_b").value), m, P)[1]
+    elif calcType == "md":
+        B = [int(i) for i in Element("b_enc").value.split(',')]
+        C = [int(i) for i in Element("c_enc").value.split(',')]
+        res = message_decrypt(int(Element("p").value), int(Element("a").value), int(Element("b").value), int(Element("k_a").value), B, C)[1]
+    elif calcType == "ege":
+        m = [int(i) for i in Element("m").value.split(',')]
+        m = m if len(m) > 1 else m[0]
+        P = False if Element("point").value == "" else [int(i) for i in Element("point").value.split(',')]
+        res = el_gamal_ellipt(int(Element("p").value), int(Element("a").value), int(Element("b").value), int(Element("k_a").value), int(Element("k_b").value), m, P)
     Element('result').write(res)
 
 def my_gcd(number_one, number_two):
@@ -485,8 +507,9 @@ def my_mod_sqrt(n, p):
     solution += f"\nPrüfe einfachen Tonelli {p} = 3 (mod 4) => {p} = {p%4} (mod 4)"
     if is_simple_tonelli:
         res = pow(n, (p + 1) // 4, p)
-        solution += f"\nIst Fall 1.\nWurzel: {n}^((p+1) / 4) == {res}"
-        return res, solution
+        res2 = (-res) % p
+        solution += f"\nIst Fall 1.\nWurzel: {n}^((p+1) / 4) = +-{res} = {res} oder {res2} (mod {p})"
+        return res, res2, solution
     else:
         solution += "\nIst Fall 2"
         h, part_solution= find_quadratic_nonresidue(p)
@@ -504,9 +527,9 @@ def my_mod_sqrt(n, p):
                 solution += f"\nUpdate exponent 2 = {exponent_two}"
 
         res = pow(n, (exponent_one + 1) // 2, p) * pow(h, exponent_two // 2, p) % p
-        solution += f"\n{n}^(({exponent_one} + 1) / 2) * {h}^({exponent_two} / 2) = +- {res} (mod {p})"
-        solution += f"\nx1 = {res}, x2 = {(-res) % p}"
-        return res, solution
+        res2 = (-res) % p
+        solution += f"\n{n}^(({exponent_one} + 1) / 2) * {h}^({exponent_two} / 2) = +-{res} = {res} oder {res2} (mod {p})"
+        return res, res2, solution
 
 def find_quadratic_nonresidue(p):
     solution = "--- Finde Quadratisches Nichtresidual ---"
@@ -533,7 +556,7 @@ def ellipt_add(P_x, P_y, Q_x, Q_y, p, a, b):
     elif P_x != Q_x and P_x < p:
         solution += f"\nFall a) x1 != x2"
         m = (Q_y - P_y) * pow((Q_x - P_x), -1, p) % p
-        solution += f"\nm: ({Q_y} - {P_x}) / ({Q_x} - {P_x}) = {m} (mod {p})"
+        solution += f"\nm: ({Q_y} - {P_y}) / ({Q_x} - {P_x}) = {m} (mod {p})"
         x3 = (m**2 - P_x - Q_x) % p
         solution += f"\nx3: {m}^2 - {P_x} - {Q_x} = {x3} (mod {p})"
         y3 = (-m * (x3 - P_x) - P_y) % p
@@ -721,4 +744,101 @@ def baby_step_giant_step(g, a, p):
             solution += f"\nKollision gefunden! Übereinstimmung mit ({j}, {ah_i})"
             solution += f"\n\nLösung x = {i} * {m} + {j} = {x} (mod {p})"
             break
+    return solution
+
+def points_on_elliptic_curve(p, a, b):
+    solution = f"--- Tabelle mit Punkten auf Elliptischer Kurve x^3 + {a}x + {b}"
+    points = []
+    for i in range(p):
+        s_x = (i**3 + a*i + b)  % p
+        solution += f"\n\nsx = {i}^3 + {a}*{i} + {b} = {s_x} (mod {p})"
+        has_root = pow(s_x, int((p-1) / 2), p) == 1
+        y = "-"
+        if has_root:
+            solution += f"\nHat wurzel: {a}^(({p}-1) / 2) = {pow(a, int((p-1) / 2), p) == 1} (mod {p})"
+            p1, p2, part_solution = my_mod_sqrt(s_x, p)
+            solution += f"\nWurzel mit tonelli gibt: {p1} oder {p2}"
+            points.append([i, p1])
+            points.append([i, p2])
+        else:
+            solution += f"\nHat keine Wurzel"
+    solution += f"Menge der Punkte ist: {','.join([f'({p[0]},{p[1]})' for p in points])},O.\nAnzahl: {len(points) + 1}"
+    return points, solution
+
+def message_to_point(m, a, b, p, bit):
+    solution = f"Nachricht {m} auf Punkt der Elliptischen Kurve x^3 + {a}x + {b} mit Bitshift von {bit} bringen."
+    x = m << bit
+    solution += f"\nLinksshift von {m} um {bit} = {x}"
+    for _ in range(2**bit):
+        
+        s = (pow(x, 3, p) + a*x + b) % p
+        solution += f"\n\nBerechne s = {x}^3 + {a}*{x} + {b} = {s} (mod {p})"
+        y = my_mod_sqrt(s, p)[0]
+        solution += f"\nFinde y mithilfe von Tonelli = {y}"
+        if y != -1:
+            break
+        solution += f"\ny noch nicht gefunden, {x} um 1 erhöhen."
+        x += 1
+    solution += f"\ny = {y} gefunden."
+    solution += f"\nPunkt auf Kurve ist: [{x}, {y}]"
+    return [x, y], solution
+
+def point_to_message(x, bit):
+# x ist der erste wert des Punk M(x,y)
+# bit ist die anzahl bit die zum verschieben verwendet wurden
+# m return ist bitschift rückgängig und dann abgerundet
+    m = floor(x/pow(2, bit))
+    return m, f"m = floor({x}/{pow(2, bit)}) = {m}"
+
+def ellipt_mul(P_x, P_y, factor, p, a, b):
+    solution = f'--- Ellipt Multiply ----'
+    result = [p, P_y]
+    tmp = [P_x, P_y]
+    factor_length = factor.bit_length()
+    solution += f'\nBitlänge des Faktor: {factor_length}\nFaktor binär: {bin(factor)}'
+    for i in range(factor_length):
+        if (factor & (1 << i)) != 0:
+            solution += f'\nBit an stelle {i} ist 1 => Ellipt Addieren: ({result[0]}, {result[1]}) + ({tmp[0]}, {tmp[1]})'
+            result = ellipt_add(result[0], result[1], tmp[0], tmp[1], p, a, b)[0]
+            solution += f"\n=({result[0]}, {result[1]}) "
+        tmp = ellipt_add(tmp[0], tmp[1], tmp[0], tmp[1], p, a, b)[0]
+    return result, solution
+
+def message_encrypt(p, a, b, kA, kB, m, P=False):
+    solution = "--- Encrypt Nachricht ---"
+    if isinstance(m, int):
+        m, part_solution = message_to_point(m, a, b, p, 4)
+        solution += f"\n\n{part_solution}"
+    if not P:
+        res, part_solution = points_on_elliptic_curve(p, a, b)
+        P = res[0]
+        solution += f"\n\n{part_solution}"
+    solution += "\nPunkt P auf Kurve ist {P}"
+    A = ellipt_mul(P[0], P[1], kA, p, a, b)[0]
+    solution += f"\n\nA = {kA} * {P} = {A} (mod {p})"
+    B = ellipt_mul(P[0], P[1], kB, p, a, b)[0]
+    solution += f"\n\nB = {kB} * {P} = {A} (mod {p})"
+    kBA = ellipt_mul(A[0], A[1], kB, p, a, b)[0]
+    C = ellipt_add(m[0], m[1], kBA[0], kBA[1], p, a, b)[0]
+    solution += f"\n\nC = {m} + {kBA} = {C} (mod {p})"
+    solution += f"\n\nEncrypted nachricht: [{B}, {C}]"
+    return [B, C], solution
+
+def message_decrypt(p, a, b, kA, B, C):
+    solution = "--- Decrypt Nachricht ---"
+    neg_kA_B = ellipt_mul(B[0], (-B[1]) % p, kA, p, a, b)[0]
+    M = ellipt_add(neg_kA_B[0], neg_kA_B[1], C[0], C[1], p, a, b)[0]
+    solution += f"\nBerechne Decryptete Message:"
+    solution += f"\nM = -{kA} * {B} + {C} = {M} (mod {p})"
+    return M, solution
+
+def el_gamal_ellipt(p, a, b, kA, kB, m, P=False):
+    solution = "--- El Gamal Ellipt ---"
+    encrypted_message, part_solution = message_encrypt(p, a, b, kA, kB, m, P)
+    solution += f"\n{part_solution}"
+    decrypted_message, part_solution = message_decrypt(p, a, b, kA, encrypted_message[0], encrypted_message[1])
+    solution += f"\n{part_solution}"
+    if isinstance(m, int):
+        _, part_solution = point_to_message(decrypted_message[0], 4)
+        solution += f"\n{part_solution}"
     return solution
