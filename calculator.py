@@ -628,10 +628,12 @@ def is_fermat_lier(n, S):
             r = factors.count(2)
             u = int((n-1) / 2**r)
             solution += f"\n{n-1} = 2^{r} * {u}"
-            res_miller_rabiot = pow(s, u, n)
-            if res_miller_rabiot == 1 or res_miller_rabiot == (n-1):
-                solution += f"\n{s}^{u} = {res_miller_rabiot} (mod {n}) => ist Starker Lügner"
-            else:
+            for k in range(r):
+                res_miller_rabiot = pow(s, pow(2,k) * u, n)
+                if res_miller_rabiot == 1 or res_miller_rabiot == (n-1):
+                    solution += f"\n{s}^{pow(2,k) * u} = {res_miller_rabiot} (mod {n}) => ist Starker Lügner"
+                    break
+            if not (res_miller_rabiot == 1 or res_miller_rabiot == (n-1)):
                 solution += f"\n{s}^{u} = {res_miller_rabiot} (mod {n}) => ist kein Starker Lügner"
         else:
             solution += f"\n\n{s}^{n-1} = {res} (mod {n}) => ist kein FL und kein SL"
