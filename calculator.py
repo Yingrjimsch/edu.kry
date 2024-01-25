@@ -486,12 +486,14 @@ def my_pollard_rho(num, x=1, a=1):
     d = 0
 
     while d <= 1 or d >= num:
+        x_old = x
         x = (x**2 + a) % num
-        solution += f"\n\nx = ({x}^2 + {a}) = {x} (mod {num})"
+        solution += f"\n\nx = ({x_old}^2 + {a}) = {x} (mod {num})"
+        y_old = y
         y = ((y**2 + a)**2 + a) % num
-        solution += f"\ny = (({y}^2 + {a})^2 + {a}) = {y} (mod {num})"
+        solution += f"\ny = (({y_old}^2 + {a})^2 + {a}) = {y} (mod {num})"
         d = gcd(abs(x - y), num)
-        solution += f"\n{d} = ggT(|{x} - {y}|, {num}) = {d}"
+        solution += f"{d} = ggT(|{x} - {y}|, {num}) = {d}"
     solution += f"\n\nFactor 1: {d}, Factor 2: {num // d}"
     return d, solution
 
